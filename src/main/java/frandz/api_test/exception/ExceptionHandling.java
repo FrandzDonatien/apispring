@@ -62,10 +62,10 @@ public class ExceptionHandling {
 //    public ResponseEntity<HttpResponse> emailNotFoundException(EmailNotFoundException exception){
 //        return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage().toUpperCase());
 //    }
-//    @ExceptionHandler(UserNotFoundException.class)
-//    public ResponseEntity<HttpResponse> usernameNotFoundException(UserNotFoundException exception){
-//        return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage().toUpperCase());
-//    }
+   @ExceptionHandler(UserNotFoundException.class)
+   public ResponseEntity<HttpResponse> usernameNotFoundException(UserNotFoundException exception){
+        return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage().toUpperCase());
+   }
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<HttpResponse> invalidTokenException(InvalidTokenException exception){
         return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage().toUpperCase());

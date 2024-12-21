@@ -3,12 +3,14 @@ package frandz.api_test.controller.authController;
 import frandz.api_test.exception.EmailExistException;
 import frandz.api_test.exception.ExpiredTokenException;
 import frandz.api_test.exception.InvalidTokenException;
+import frandz.api_test.requests.AuthRequest;
 import frandz.api_test.requests.RegisterRequest;
 import frandz.api_test.responses.AuthenticationResponse;
 import frandz.api_test.service.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -39,5 +41,9 @@ public class AuthenticationController {
     }
 
     //login
+    @PostMapping("login")
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthRequest request) throws UsernameNotFoundException{
+        return ResponseEntity.ok(this.authService.login(request));
+    }
 
 }

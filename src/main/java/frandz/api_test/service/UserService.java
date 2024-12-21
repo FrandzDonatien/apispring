@@ -20,7 +20,7 @@ public class UserService implements UserServiceImpl, UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user = this.userRepository.findByEmail(username);
         if(user.isEmpty()){
-            throw new UsernameNotFoundException("User not found "+username);
+           throw new UsernameNotFoundException("User not found");
         }else{
             return user.get();
         }

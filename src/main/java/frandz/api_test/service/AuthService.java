@@ -5,13 +5,19 @@ import frandz.api_test.exception.EmailExistException;
 import frandz.api_test.exception.ExceptionHandling;
 import frandz.api_test.exception.ExpiredTokenException;
 import frandz.api_test.exception.InvalidTokenException;
+import frandz.api_test.model.Jwt;
 import frandz.api_test.model.User;
 import frandz.api_test.model.VerificationToken;
+import frandz.api_test.repository.JwtRepository;
 import frandz.api_test.repository.UserRepository;
 import frandz.api_test.repository.VerificationTokenRepository;
+import frandz.api_test.requests.AuthRequest;
 import frandz.api_test.requests.RegisterRequest;
 import frandz.api_test.responses.AuthenticationResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +30,12 @@ import java.util.Random;
 public class AuthService extends ExceptionHandling {
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final JwtRepository jwtRepository;
 
     //register
     public AuthenticationResponse register(RegisterRequest request) throws EmailExistException {
@@ -78,8 +87,6 @@ public class AuthService extends ExceptionHandling {
         //set user
         user.setEnable(true);
         this.userRepository.save(user);
-
-
         return AuthenticationResponse.builder()
                 .message("email verifier")
                 .data(user)
@@ -90,6 +97,33 @@ public class AuthService extends ExceptionHandling {
         Random random = new Random();
         Number code = 100000 + random.nextInt(900000);
         return code.toString();
+    }
+
+    //login
+
+    public AuthenticationResponse login(AuthRequest request) throws UsernameNotFoundException{
+        var user = this.userService.loadUserByUsername(request.getEmail());
+        //var user = this.userRepository.findByEmail(request.getEmail()).orElse();
+        this.authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        var token = jwtService.generateToken(user);
+        final Jwt jwt = Jwt.builder()
+                .valeur(token)
+                .desactive(false)
+                .expire(false)
+                .user((User) user)
+                .build();
+        this.jwtRepository.save(jwt);
+        return AuthenticationResponse.builder()
+                .token(token)
+                .data( (User) user)
+                .message("login")
+                .build();
+
     }
 
 }

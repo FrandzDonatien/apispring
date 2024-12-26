@@ -14,9 +14,18 @@ import frandz.api_test.repository.VerificationTokenRepository;
 import frandz.api_test.requests.AuthRequest;
 import frandz.api_test.requests.RegisterRequest;
 import frandz.api_test.responses.AuthenticationResponse;
+import frandz.api_test.responses.HttpResponse;
+import frandz.api_test.responses.JwtResponse;
+import frandz.api_test.responses.UserResponse;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+
+import org.hibernate.mapping.Any;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -86,6 +95,9 @@ public class AuthService extends ExceptionHandling {
         }
         //set user
         user.setEnable(true);
+        user.setAccountNonExpired(true);
+        user.setAccountNonLocked(true);
+        user.setCredentialsNonExpired(true);
         this.userRepository.save(user);
         return AuthenticationResponse.builder()
                 .message("email verifier")
@@ -100,8 +112,7 @@ public class AuthService extends ExceptionHandling {
     }
 
     //login
-
-    public AuthenticationResponse login(AuthRequest request) throws UsernameNotFoundException{
+    public JwtResponse login(AuthRequest request) throws BadCredentialsException {
         var user = this.userService.loadUserByUsername(request.getEmail());
         //var user = this.userRepository.findByEmail(request.getEmail()).orElse();
         this.authenticationManager.authenticate(
@@ -118,12 +129,23 @@ public class AuthService extends ExceptionHandling {
                 .user((User) user)
                 .build();
         this.jwtRepository.save(jwt);
-        return AuthenticationResponse.builder()
-                .token(token)
-                .data( (User) user)
-                .message("login")
+
+        return JwtResponse.builder()
+                .accessToken(token)
+                .refreshToken(jwtService.generateRefreshToken(user))
                 .build();
 
     }
+
+    public HttpResponse me(Authentication authentication){
+        System.out.println(authentication.getName());
+       var user = this.userRepository.findByEmail(authentication.getName()).orElseThrow();
+       return HttpResponse.builder()
+               .status(HttpStatus.FOUND)
+               .data(user)
+               .message("user")
+               .build();
+    }
+
 
 }

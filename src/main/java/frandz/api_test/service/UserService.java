@@ -4,6 +4,7 @@ import frandz.api_test.model.User;
 import frandz.api_test.repository.UserRepository;
 import frandz.api_test.service.impl.UserServiceImpl;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,10 +18,10 @@ public class UserService implements UserServiceImpl, UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws BadCredentialsException {
         Optional<User> user = this.userRepository.findByEmail(username);
         if(user.isEmpty()){
-           throw new UsernameNotFoundException("User not found");
+           throw new BadCredentialsException("email/password incorrect");
         }else{
             return user.get();
         }

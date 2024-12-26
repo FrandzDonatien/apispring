@@ -6,10 +6,16 @@ import frandz.api_test.exception.InvalidTokenException;
 import frandz.api_test.requests.AuthRequest;
 import frandz.api_test.requests.RegisterRequest;
 import frandz.api_test.responses.AuthenticationResponse;
+import frandz.api_test.responses.HttpResponse;
+import frandz.api_test.responses.JwtResponse;
+import frandz.api_test.responses.UserResponse;
 import frandz.api_test.service.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,8 +48,10 @@ public class AuthenticationController {
 
     //login
     @PostMapping("login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthRequest request) throws UsernameNotFoundException{
+    public ResponseEntity<JwtResponse> login(@RequestBody AuthRequest request) throws BadCredentialsException {
         return ResponseEntity.ok(this.authService.login(request));
     }
+
+
 
 }

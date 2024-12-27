@@ -17,4 +17,5 @@ public class HttpResponse {
     private HttpStatus status;
     private User data;
     private String message;
+
 }

@@ -17,6 +17,7 @@ import frandz.api_test.responses.AuthenticationResponse;
 import frandz.api_test.responses.HttpResponse;
 import frandz.api_test.responses.JwtResponse;
 import frandz.api_test.responses.UserResponse;
+import frandz.api_test.service.impl.UserServiceImpl;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -39,12 +40,13 @@ import java.util.Random;
 public class AuthService extends ExceptionHandling {
 
     private final UserRepository userRepository;
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final JwtRepository jwtRepository;
+    private final EmailSender emailSender;
 
     //register
     public AuthenticationResponse register(RegisterRequest request) throws EmailExistException {
@@ -70,8 +72,10 @@ public class AuthService extends ExceptionHandling {
         VerificationToken verificationToken = new VerificationToken(code,newUser);
         this.verificationTokenRepository.save(verificationToken);
 
-        //after save, send code to user
+        //send Email
+        this.emailSender.sendEmail(newUser.getEmail(), code);
 
+        //after save, send code to user
         return AuthenticationResponse.builder()
                 .data(newUser)
                 .token(jwtToken)
@@ -80,7 +84,7 @@ public class AuthService extends ExceptionHandling {
     }
 
     //validation token
-    public AuthenticationResponse validationToken(String code) throws InvalidTokenException, ExpiredTokenException {
+    public HttpResponse<User> validationToken(String code) throws InvalidTokenException, ExpiredTokenException {
         //get token
         VerificationToken token = this.verificationTokenRepository.findByToken(code);
         if(token ==null)
@@ -99,10 +103,12 @@ public class AuthService extends ExceptionHandling {
         user.setAccountNonLocked(true);
         user.setCredentialsNonExpired(true);
         this.userRepository.save(user);
-        return AuthenticationResponse.builder()
-                .message("email verifier")
-                .data(user)
-                .build();
+
+        return new HttpResponse<>(
+                HttpStatus.OK,
+                user,
+                "email verifier"
+        );
     }
 
     public String generateCode() {
@@ -112,7 +118,7 @@ public class AuthService extends ExceptionHandling {
     }
 
     //login
-    public JwtResponse login(AuthRequest request) throws BadCredentialsException {
+    public HttpResponse<JwtResponse> login(AuthRequest request) throws BadCredentialsException {
         var user = this.userService.loadUserByUsername(request.getEmail());
         //var user = this.userRepository.findByEmail(request.getEmail()).orElse();
         this.authenticationManager.authenticate(
@@ -130,22 +136,27 @@ public class AuthService extends ExceptionHandling {
                 .build();
         this.jwtRepository.save(jwt);
 
-        return JwtResponse.builder()
+        var jwtResponse =  JwtResponse.builder()
                 .accessToken(token)
                 .refreshToken(jwtService.generateRefreshToken(user))
                 .build();
 
+        return new HttpResponse<>(
+                HttpStatus.OK,
+                jwtResponse,
+                "User list fetched successfully"
+        );
     }
 
-    public HttpResponse me(Authentication authentication){
+    public HttpResponse<User> me(Authentication authentication){
         System.out.println(authentication.getName());
-       var user = this.userRepository.findByEmail(authentication.getName()).orElseThrow();
-       return HttpResponse.builder()
-               .status(HttpStatus.FOUND)
-               .data(user)
-               .message("user")
-               .build();
-    }
+       User user = this.userRepository.findByEmail(authentication.getName()).orElseThrow();
+        return new HttpResponse<>(
+                HttpStatus.FOUND,
+                user,
+                "user"
+        );
 
+    }
 
 }

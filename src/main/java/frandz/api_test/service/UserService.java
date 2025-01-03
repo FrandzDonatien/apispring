@@ -12,23 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service
-@AllArgsConstructor
-public class UserService implements UserServiceImpl, UserDetailsService {
-    private final UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws BadCredentialsException {
-        Optional<User> user = this.userRepository.findByEmail(username);
-        if(user.isEmpty()){
-           throw new BadCredentialsException("email/password incorrect");
-        }else{
-            return user.get();
-        }
-    }
-
-    @Override
-    public Optional<User> getByEmail(String email) {
-        return this.userRepository.findByEmail(email);
-    }
+public interface UserService {
+    Optional<User> getByEmail(String email);
 }

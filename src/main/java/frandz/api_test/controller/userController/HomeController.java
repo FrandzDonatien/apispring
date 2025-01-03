@@ -1,6 +1,7 @@
 package frandz.api_test.controller.userController;
 
 
+import frandz.api_test.model.User;
 import frandz.api_test.responses.AuthenticationResponse;
 import frandz.api_test.responses.HttpResponse;
 import frandz.api_test.responses.UserResponse;
@@ -25,7 +26,7 @@ public class HomeController {
     }
 
     @PostMapping("/me")
-    public ResponseEntity<HttpResponse> me(){
+    public ResponseEntity<HttpResponse<User>> me(){
         return ResponseEntity.ok(this.authService.me(SecurityContextHolder.getContext().getAuthentication()));
     }
 

@@ -3,6 +3,7 @@ package frandz.api_test.controller.authController;
 import frandz.api_test.exception.EmailExistException;
 import frandz.api_test.exception.ExpiredTokenException;
 import frandz.api_test.exception.InvalidTokenException;
+import frandz.api_test.model.User;
 import frandz.api_test.requests.AuthRequest;
 import frandz.api_test.requests.RegisterRequest;
 import frandz.api_test.responses.AuthenticationResponse;
@@ -39,7 +40,7 @@ public class AuthenticationController {
 
     //verification email
     @PostMapping(value = "verification-token", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AuthenticationResponse> verificationToken(@RequestBody Map<String, String> payload) throws InvalidTokenException, ExpiredTokenException
+    public ResponseEntity<HttpResponse<User>> verificationToken(@RequestBody Map<String, String> payload) throws InvalidTokenException, ExpiredTokenException
     {
         String token = payload.get("token");
         System.out.println(token);
@@ -48,7 +49,7 @@ public class AuthenticationController {
 
     //login
     @PostMapping("login")
-    public ResponseEntity<JwtResponse> login(@RequestBody AuthRequest request) throws BadCredentialsException {
+    public ResponseEntity<HttpResponse<JwtResponse>> login(@RequestBody AuthRequest request) throws BadCredentialsException {
         return ResponseEntity.ok(this.authService.login(request));
     }
 

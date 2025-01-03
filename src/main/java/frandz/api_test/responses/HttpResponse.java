@@ -13,9 +13,8 @@ import org.springframework.http.HttpStatus;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class HttpResponse {
+public class HttpResponse<T> {
     private HttpStatus status;
-    private User data;
+    private T data;
     private String message;
-
 }

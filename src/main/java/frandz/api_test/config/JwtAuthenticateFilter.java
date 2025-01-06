@@ -39,7 +39,7 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
         boolean isTokenExpired;
-//        Jwt tokenDansLaBase = null;
+        //Jwt tokenDansLaBase = null;
         if(authHeader == null ||!authHeader.startsWith(SecurityConstant.TOKEN_PREFIX)){
             filterChain.doFilter(request, response);
             return;

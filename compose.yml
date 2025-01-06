@@ -1,6 +1,14 @@
 services:
+  nginx:
+    image: nginx
+    container_name: web
+    restart: always
+    ports:
+      - 80:80
+
   db:
     image: postgres
+    container_name: db
     restart: always
     environment:
       - POSTGRES_USER=postgres
@@ -11,6 +19,7 @@ services:
 
   adminer:
     image: adminer
+    container_name: db-ihm
     restart: always
     ports:
       - 8080:8080

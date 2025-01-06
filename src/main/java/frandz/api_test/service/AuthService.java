@@ -16,12 +16,10 @@ import frandz.api_test.requests.RegisterRequest;
 import frandz.api_test.responses.AuthenticationResponse;
 import frandz.api_test.responses.HttpResponse;
 import frandz.api_test.responses.JwtResponse;
-import frandz.api_test.responses.UserResponse;
 import frandz.api_test.service.impl.UserServiceImpl;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import org.hibernate.mapping.Any;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
